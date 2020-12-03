@@ -5,21 +5,20 @@ import { ItemsObject } from '../scripts/app/client/client';
 import IsAuthed from "../scripts/globalState";
 
 interface IIDHandlerProps {
-    newID: number
-    modalVisible: boolean
+    editModalVisible: boolean
+    editItem: ItemsObject | undefined
     onSubmit: () => void
-    setModalVisible: (show: boolean) => void;
+    setEditModalVisible: (show: boolean) => void;
 
 }
-const ProductForm = (props: IIDHandlerProps) => {
+const ProductEditForm = (props: IIDHandlerProps) => {
     // const results =  apiClient.create();
     const [newItem, setNewItem] = React.useState<ItemsObject>();
-    const [visible, setVisible] = React.useState<boolean>();
     let { token } = IsAuthed.useContainer();
     return (
         <>
             <Modal
-                show={props.modalVisible}
+                show={props.editModalVisible}
             >
                 <Modal.Header>
                     <Modal.Title>Create New Item</Modal.Title>
@@ -28,15 +27,19 @@ const ProductForm = (props: IIDHandlerProps) => {
                 <Modal.Body>
                     <Form
                         onSubmit={() => {
-                            apiClient.create(props.newID, newItem?.name, newItem?.stockCount, newItem?.price, newItem?.description, token).then(() => { setTimeout(() => { props.onSubmit() }, 1000) });
-                            props.setModalVisible(false)
+                            apiClient.update(props.editItem?.itemID,
+                                newItem?.name ? newItem.name : props.editItem?.name,
+                                newItem?.stockCount ? newItem?.stockCount : props.editItem?.stockCount,
+                                newItem?.price ? newItem.price : props.editItem?.price,
+                                newItem?.description ? newItem.description : props.editItem?.description,
+                                token).then(() => { setTimeout(() => { props.onSubmit() }, 1000) });
                         }}
                     >
                         <Form.Group controlId="formBasicID">
-                            <Form.Control type="number" value={props.newID} disabled={true} />
+                            <Form.Control type="number" defaultValue={props.editItem?.itemID} disabled={true} />
                         </Form.Group>
                         <Form.Group controlId="formBasicName">
-                            <Form.Control type="name" placeholder="Item Name" onChange={(i) => {
+                            <Form.Control type="name" defaultValue={props.editItem?.name} onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.name = i.target.value;
                                 setNewItem(item);
@@ -44,7 +47,7 @@ const ProductForm = (props: IIDHandlerProps) => {
                         </Form.Group>
 
                         <Form.Group controlId="formBasicDescription">
-                            <Form.Control type="description" placeholder="Description" onChange={(i) => {
+                            <Form.Control type="description" defaultValue={props.editItem?.description} onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.description = i.target.value;
                                 setNewItem(item);
@@ -52,7 +55,7 @@ const ProductForm = (props: IIDHandlerProps) => {
                         </Form.Group>
 
                         <Form.Group controlId="formBasicPrice">
-                            <Form.Control type="price" placeholder="Price" onChange={(i) => {
+                            <Form.Control type="price" defaultValue={props.editItem?.price} onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.price = Number.parseFloat(i.target.value);
                                 setNewItem(item);
@@ -60,7 +63,7 @@ const ProductForm = (props: IIDHandlerProps) => {
                         </Form.Group>
 
                         <Form.Group controlId="formBasicStock">
-                            <Form.Control type="stock" placeholder="Stock Count" onChange={(i) => {
+                            <Form.Control type="stock" defaultValue={props.editItem?.stockCount} onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.stockCount = Number.parseInt(i.target.value);
                                 setNewItem(item);
@@ -74,11 +77,11 @@ const ProductForm = (props: IIDHandlerProps) => {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => { props.setModalVisible(false) }} >Close</Button>
+                    <Button variant="secondary" onClick={() => { props.setEditModalVisible(false) }} >Close</Button>
                 </Modal.Footer>
 
             </Modal>
         </>
     )
 };
-export default ProductForm;
+export default ProductEditForm;

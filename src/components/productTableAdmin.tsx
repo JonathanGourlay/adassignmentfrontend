@@ -4,24 +4,45 @@ import { ItemsObject } from '../scripts/app/client/client';
 import { Table, Button, Navbar, Card } from 'react-bootstrap';
 import { GetUserIdToken } from '../utils/firebase';
 import ProductForm from './productForm';
+import ProductEditForm from './productEditForm';
+import IsAuthed from '../scripts/globalState';
 
 export default function ProductTableAdmin() {
   GetUserIdToken().then(res => console.log(res)) // This is the function for getting the users UID from firebase
   const [products, setProducts] = React.useState<ItemsObject[]>();
+  const [largeID, setLargeID] = React.useState<number>();
+  let { token } = IsAuthed.useContainer();
+  const [modalVisible, setModalVisible] = React.useState(false)
+  const [editModalVisible, setEditModalVisible] = React.useState(false)
+  const [itemToEdit, setItemToEdit] = React.useState<ItemsObject>();
 
+  const getProducts = async () => {
+    try {
+      const results = await apiClient.itemsAll();
+
+      // console.log(results);
+      if (results) {
+        setProducts(results);
+      }
+    } catch (error) { }
+  };
   useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const results = await apiClient.itemsAll();
-
-        // console.log(results);
-        if (results) {
-          setProducts(results);
-        }
-      } catch (error) { }
-    };
     getProducts();
   }, []);
+
+  const deleteProducts = (itemID: number | undefined, index: number) => {
+    apiClient.delete(token, itemID)
+    const newProducts = products?.filter((item) => item.itemID !== itemID);
+    setProducts(newProducts)
+  };
+
+  React.useEffect(() => {
+    if (products !== undefined) {
+      setLargeID(products !== undefined ? products.length : 0)
+      console.log(largeID)
+      console.log(products)
+    }
+  }, [products]) // run when products changes
 
 
   return (
@@ -34,10 +55,12 @@ export default function ProductTableAdmin() {
           <th>Price</th>
           <th>Stock Count</th>
           <th>Admin Edit Value</th>
+          <th>Admin Delete Value</th>
         </tr>
       </thead>
       <tbody>
-        {products !== undefined &&
+        {
+          products !== undefined &&
           products.map(({ name, itemID, description, price, stockCount }, index) => (<tr key={index}>
             <td>{itemID}</td>
             <td>{name}</td>
@@ -45,14 +68,44 @@ export default function ProductTableAdmin() {
             <td>{price}</td>
             <td>{stockCount}</td>
             <td>
-              <button type="button" className="btn btn-primary">Primary</button>
+              <button type="button" className="btn btn-primary" onClick={() => {
+                const item = itemToEdit ?? new ItemsObject();
+                item.name = name;
+                item.itemID = itemID;
+                item.description = description;
+                item.price = price;
+                item.stockCount = stockCount;
+                setItemToEdit(item)
+                setEditModalVisible(true)
+              }}>Edit Item</button>
+            </td>
+            <td>
+              <button type="button" className="btn btn-primary" onClick={() => deleteProducts(itemID, index)}>Delete Item</button>
             </td>
           </tr>)
           )}
+        <tr>
+          <td colSpan={7}>
+            <button type="button" className="btn btn-primary" onClick={() => setModalVisible(true)}>New Item</button>
+          </td>
+        </tr>
       </tbody>
 
     </table>
-      <ProductForm></ProductForm></>
+      <ProductForm
+        newID={largeID as number}
+        onSubmit={() => { getProducts() }}
+        setModalVisible={setModalVisible}
+        modalVisible={modalVisible}
+      ></ProductForm>
+
+      <ProductEditForm
+        onSubmit={() => { getProducts() }}
+        setEditModalVisible={setEditModalVisible}
+        editModalVisible={editModalVisible}
+        editItem={itemToEdit}
+      ></ProductEditForm>
+    </>
 
   )
 

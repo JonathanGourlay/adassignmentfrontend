@@ -3,6 +3,7 @@ import apiClient from "../scripts/app/client/";
 import { ItemsObject } from '../scripts/app/client/client';
 import { Table, Button, Navbar, Card } from 'react-bootstrap';
 import { GetUserIdToken } from '../utils/firebase';
+import { FirebaseAuthConsumer } from '@react-firebase/auth';
 
 export default function ProductTable() {
   //GetUserIdToken().then(res => console.log(res)) // This is the function for getting the users UID from firebase
@@ -23,26 +24,24 @@ export default function ProductTable() {
 
   return (
     <table className="table table-striped table-dark">
-      <thead>
-        <tr>
-          <th>Id #</th>
-          <th>Product Name</th>
-          <th>Description</th>
-          <th>Price</th>
-          <th>Stock Count</th>
-        </tr>
-      </thead>
       <tbody>
         {products !== undefined &&
           products.map(({ name, itemID, description, price, stockCount }, index) =>
-            (
-              <tr key={index}>
-                <td>{itemID}</td>
-                <td>{name}</td>
-                <td>{description}</td>
-                <td>{price}</td>
-                <td>{stockCount}</td>
-              </tr>)
+            (<td>
+              <Card className="text-center">
+                <Card.Header></Card.Header>
+                <Card.Body>
+                  <Card.Title>{name}</Card.Title>
+                  <Card.Text>
+                    {description},
+                {price}
+                  </Card.Text>
+                  <Button variant="primary">Go somewhere</Button>
+                </Card.Body>
+                <Card.Footer className="text-muted"></Card.Footer>
+              </Card>
+            </td>
+            )
           )
         }
       </tbody>
