@@ -14,8 +14,6 @@ export default function ProductTableController() {
     return (
         <FirebaseAuthConsumer>
             {({ isSignedIn }) => {
-                console.log({ isSignedIn }, { isAdmin })
-
                 return (
                     isSignedIn && isAdmin ?
                         <ProductTableAdmin /> : <ProductTable />)

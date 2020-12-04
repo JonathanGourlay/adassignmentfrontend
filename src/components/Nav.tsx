@@ -5,34 +5,37 @@ import IsAuthed from "../scripts/globalState";
 import { SignInWithGoogle, SignOut } from "../utils/firebase";
 
 const Nav = () => {
-    const { tryGetToken } = IsAuthed.useContainer();
-
+    const { tryGetToken, setBasketModalVisible, basketModalVisible } = IsAuthed.useContainer();
     return (
         <Navbar bg="dark" variant="dark">
             <Navbar.Brand href="#home">
                 Home
     </Navbar.Brand>
-            <Navbar.Brand href="#items">
-                Items
-    </Navbar.Brand>
-            <Navbar.Brand href="#orders">
+            <Button
+                variant="dark"
+                style={
+                    { marginLeft: 20, marginRight: 20 }
+                }
+                onClick={() => {
+                    setBasketModalVisible(true)
+                }}>
                 Orders
-    </Navbar.Brand>
-            <Navbar.Brand href="#basket">
+    </Button>
+            <Button
+                variant="dark"
+                style={
+                    { marginLeft: 20, marginRight: 20 }
+                }
+                onClick={() => {
+                    setBasketModalVisible(true)
+                }}>
                 Basket
-    </Navbar.Brand>
-            <NavDropdown title="Dropdown" id="collasible-nav-dropdown">
-                <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
-            </NavDropdown>
+    </Button>
             <FirebaseAuthConsumer>
                 {({ isSignedIn }) => {
-                    return (isSignedIn ? <Button onClick={() => {
+                    return (isSignedIn ? <Button variant="dark" onClick={() => {
                         SignOut().then(() => { tryGetToken(); });
-                    }}>Log out</Button> : <Button onClick={() => SignInWithGoogle().then(() => { tryGetToken(); })}>Login</Button>)
+                    }}>Log out</Button> : <Button variant="dark" onClick={() => SignInWithGoogle().then(() => { tryGetToken(); })}>Login</Button>)
                 }}
             </FirebaseAuthConsumer>
 

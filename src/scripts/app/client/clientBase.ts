@@ -24,7 +24,6 @@ export class ClientBase {
         processor: (resp: Response) => Promise<T>,
     ): Promise<T> {
         const result = processor(response);
-        // console.log(response)
         return new Promise((res, rej) => {
             return result
                 .then(data => {

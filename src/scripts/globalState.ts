@@ -7,6 +7,7 @@ import "firebase/auth";
 function AuthedState() {
     const [token, setToken] = React.useState<string | undefined>();
     const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
+    const [basketModalVisible, setBasketModalVisible] = React.useState<boolean>()
     
     const tryGetToken = () => {
         GetUserIdToken().then(res => setToken(res)).catch((err) => {console.log({err})})
@@ -24,7 +25,7 @@ function AuthedState() {
     }
     }, [token]) // run when token changes
 
-    return { token, setToken, isAdmin, setIsAdmin, tryGetToken }
+    return { token, setToken, isAdmin, setIsAdmin, tryGetToken, basketModalVisible, setBasketModalVisible }
 
   }
 

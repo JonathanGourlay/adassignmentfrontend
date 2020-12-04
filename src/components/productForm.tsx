@@ -1,8 +1,10 @@
 import React from "react";
-import { Form, Button, Modal } from "react-bootstrap";
+import { Form, Button, Modal, FormFile } from "react-bootstrap";
+import Feedback from "react-bootstrap/esm/Feedback";
 import apiClient from "../scripts/app/client";
 import { ItemsObject } from '../scripts/app/client/client';
 import IsAuthed from "../scripts/globalState";
+
 
 interface IIDHandlerProps {
     newID: number
@@ -28,7 +30,7 @@ const ProductForm = (props: IIDHandlerProps) => {
                 <Modal.Body>
                     <Form
                         onSubmit={() => {
-                            apiClient.create(props.newID, newItem?.name, newItem?.stockCount, newItem?.price, newItem?.description, token).then(() => { setTimeout(() => { props.onSubmit() }, 1000) });
+                            apiClient.create(props.newID, newItem?.name, newItem?.stockCount, newItem?.price, newItem?.description, newItem?.imageURL, token).then(() => { setTimeout(() => { props.onSubmit() }, 1000) });
                             props.setModalVisible(false)
                         }}
                     >
@@ -36,7 +38,7 @@ const ProductForm = (props: IIDHandlerProps) => {
                             <Form.Control type="number" value={props.newID} disabled={true} />
                         </Form.Group>
                         <Form.Group controlId="formBasicName">
-                            <Form.Control type="name" placeholder="Item Name" onChange={(i) => {
+                            <Form.Control required={true} type="name" placeholder="Item Name" onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.name = i.target.value;
                                 setNewItem(item);
@@ -44,7 +46,7 @@ const ProductForm = (props: IIDHandlerProps) => {
                         </Form.Group>
 
                         <Form.Group controlId="formBasicDescription">
-                            <Form.Control type="description" placeholder="Description" onChange={(i) => {
+                            <Form.Control required={true} type="description" placeholder="Description" onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.description = i.target.value;
                                 setNewItem(item);
@@ -52,7 +54,7 @@ const ProductForm = (props: IIDHandlerProps) => {
                         </Form.Group>
 
                         <Form.Group controlId="formBasicPrice">
-                            <Form.Control type="price" placeholder="Price" onChange={(i) => {
+                            <Form.Control required={true} type="price" placeholder="Price" onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.price = Number.parseFloat(i.target.value);
                                 setNewItem(item);
@@ -60,13 +62,19 @@ const ProductForm = (props: IIDHandlerProps) => {
                         </Form.Group>
 
                         <Form.Group controlId="formBasicStock">
-                            <Form.Control type="stock" placeholder="Stock Count" onChange={(i) => {
+                            <Form.Control required={true} type="stock" placeholder="Stock Count" onChange={(i) => {
                                 const item = newItem ?? new ItemsObject();
                                 item.stockCount = Number.parseInt(i.target.value);
                                 setNewItem(item);
                             }} />
                         </Form.Group>
-
+                        <Form.Group controlId="formBasicImage">
+                            <Form.Control required={true} type="url" placeholder="Image URL" onChange={(i) => {
+                                const item = newItem ?? new ItemsObject();
+                                item.imageURL = i.target.value;
+                                setNewItem(item);
+                            }} />
+                        </Form.Group>
                         <Button variant="primary" type="submit">
                             Submit
                 </Button>

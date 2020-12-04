@@ -21,7 +21,7 @@ const ProductEditForm = (props: IIDHandlerProps) => {
                 show={props.editModalVisible}
             >
                 <Modal.Header>
-                    <Modal.Title>Create New Item</Modal.Title>
+                    <Modal.Title>Edit Item</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
@@ -31,8 +31,10 @@ const ProductEditForm = (props: IIDHandlerProps) => {
                                 newItem?.name ? newItem.name : props.editItem?.name,
                                 newItem?.stockCount ? newItem?.stockCount : props.editItem?.stockCount,
                                 newItem?.price ? newItem.price : props.editItem?.price,
-                                newItem?.description ? newItem.description : props.editItem?.description,
-                                token).then(() => { setTimeout(() => { props.onSubmit() }, 1000) });
+                                newItem?.description ? newItem.description : props.editItem?.description, newItem?.imageURL ? newItem.imageURL : props.editItem?.imageURL,
+                                token).then(() => { setTimeout(() => { props.onSubmit() }, 1000) })
+                            props.setEditModalVisible(false);
+
                         }}
                     >
                         <Form.Group controlId="formBasicID">
@@ -69,7 +71,13 @@ const ProductEditForm = (props: IIDHandlerProps) => {
                                 setNewItem(item);
                             }} />
                         </Form.Group>
-
+                        <Form.Group controlId="formBasicImage">
+                            <Form.Control type="url" defaultValue={props.editItem?.imageURL} onChange={(i) => {
+                                const item = newItem ?? new ItemsObject();
+                                item.imageURL = i.target.value;
+                                setNewItem(item);
+                            }} />
+                        </Form.Group>
                         <Button variant="primary" type="submit">
                             Submit
                 </Button>

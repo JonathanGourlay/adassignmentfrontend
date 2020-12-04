@@ -22,20 +22,22 @@ export interface IClient {
      * @param stockCount (optional) 
      * @param price (optional) 
      * @param description (optional) 
+     * @param imageURL (optional) 
      * @param token (optional) 
      * @return Success
      */
-    create(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, token: string | null | undefined): Promise<void>;
+    create(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, imageURL: string | null | undefined, token: string | null | undefined): Promise<void>;
     /**
      * @param itemID (optional) 
      * @param name (optional) 
      * @param stockCount (optional) 
      * @param price (optional) 
      * @param description (optional) 
+     * @param imageURL (optional) 
      * @param token (optional) 
      * @return Success
      */
-    update(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, token: string | null | undefined): Promise<void>;
+    update(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, imageURL: string | null | undefined, token: string | null | undefined): Promise<void>;
     /**
      * @param token (optional) 
      * @param id (optional) 
@@ -47,6 +49,11 @@ export interface IClient {
      * @return Success
      */
     isAdmin(body: string | null | undefined): Promise<boolean>;
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    createOrder(body: BasketObject | undefined): Promise<void>;
 }
 
 export class Client implements IClient {
@@ -150,10 +157,11 @@ export class Client implements IClient {
      * @param stockCount (optional) 
      * @param price (optional) 
      * @param description (optional) 
+     * @param imageURL (optional) 
      * @param token (optional) 
      * @return Success
      */
-    create(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, token: string | null | undefined): Promise<void> {
+    create(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, imageURL: string | null | undefined, token: string | null | undefined): Promise<void> {
         let url_ = this.baseUrl + "/Items/create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -174,6 +182,8 @@ export class Client implements IClient {
             content_.append("Price", price.toString());
         if (description !== null && description !== undefined)
             content_.append("Description", description.toString());
+        if (imageURL !== null && imageURL !== undefined)
+            content_.append("ImageURL", imageURL.toString());
         if (token !== null && token !== undefined)
             content_.append("Token", token.toString());
 
@@ -210,10 +220,11 @@ export class Client implements IClient {
      * @param stockCount (optional) 
      * @param price (optional) 
      * @param description (optional) 
+     * @param imageURL (optional) 
      * @param token (optional) 
      * @return Success
      */
-    update(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, token: string | null | undefined): Promise<void> {
+    update(itemID: number | undefined, name: string | null | undefined, stockCount: number | undefined, price: number | undefined, description: string | null | undefined, imageURL: string | null | undefined, token: string | null | undefined): Promise<void> {
         let url_ = this.baseUrl + "/Items/update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -234,6 +245,8 @@ export class Client implements IClient {
             content_.append("Price", price.toString());
         if (description !== null && description !== undefined)
             content_.append("Description", description.toString());
+        if (imageURL !== null && imageURL !== undefined)
+            content_.append("ImageURL", imageURL.toString());
         if (token !== null && token !== undefined)
             content_.append("Token", token.toString());
 
@@ -349,6 +362,44 @@ export class Client implements IClient {
         }
         return Promise.resolve<boolean>(<any>null);
     }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    createOrder(body: BasketObject | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/Items/create-order";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateOrder(_response);
+        });
+    }
+
+    protected processCreateOrder(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(<any>null);
+    }
 }
 
 export class ItemsObject implements IItemsObject {
@@ -358,6 +409,7 @@ export class ItemsObject implements IItemsObject {
     stockCount?: number;
     price?: number;
     description?: string | undefined;
+    imageURL?: string | undefined;
 
     constructor(data?: IItemsObject) {
         if (data) {
@@ -376,6 +428,7 @@ export class ItemsObject implements IItemsObject {
             this.stockCount = _data["stockCount"];
             this.price = _data["price"];
             this.description = _data["description"];
+            this.imageURL = _data["imageURL"];
         }
     }
 
@@ -394,6 +447,7 @@ export class ItemsObject implements IItemsObject {
         data["stockCount"] = this.stockCount;
         data["price"] = this.price;
         data["description"] = this.description;
+        data["imageURL"] = this.imageURL;
         return data; 
     }
 }
@@ -405,6 +459,95 @@ export interface IItemsObject {
     stockCount?: number;
     price?: number;
     description?: string | undefined;
+    imageURL?: string | undefined;
+}
+
+export class BasketItem implements IBasketItem {
+    itemId?: number;
+    quantity?: number;
+
+    constructor(data?: IBasketItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.itemId = _data["itemId"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): BasketItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new BasketItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["itemId"] = this.itemId;
+        data["quantity"] = this.quantity;
+        return data; 
+    }
+}
+
+export interface IBasketItem {
+    itemId?: number;
+    quantity?: number;
+}
+
+export class BasketObject implements IBasketObject {
+    token?: string | undefined;
+    basketItems?: BasketItem[] | undefined;
+
+    constructor(data?: IBasketObject) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.token = _data["token"];
+            if (Array.isArray(_data["basketItems"])) {
+                this.basketItems = [] as any;
+                for (let item of _data["basketItems"])
+                    this.basketItems!.push(BasketItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): BasketObject {
+        data = typeof data === 'object' ? data : {};
+        let result = new BasketObject();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token;
+        if (Array.isArray(this.basketItems)) {
+            data["basketItems"] = [];
+            for (let item of this.basketItems)
+                data["basketItems"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IBasketObject {
+    token?: string | undefined;
+    basketItems?: BasketItem[] | undefined;
 }
 
 export class SwaggerException extends Error {

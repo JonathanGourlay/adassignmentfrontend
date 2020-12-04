@@ -8,7 +8,7 @@ import ProductEditForm from './productEditForm';
 import IsAuthed from '../scripts/globalState';
 
 export default function ProductTableAdmin() {
-  GetUserIdToken().then(res => console.log(res)) // This is the function for getting the users UID from firebase
+  // GetUserIdToken().then(res => console.log(res)) // This is the function for getting the users UID from firebase
   const [products, setProducts] = React.useState<ItemsObject[]>();
   const [largeID, setLargeID] = React.useState<number>();
   let { token } = IsAuthed.useContainer();
@@ -19,8 +19,6 @@ export default function ProductTableAdmin() {
   const getProducts = async () => {
     try {
       const results = await apiClient.itemsAll();
-
-      // console.log(results);
       if (results) {
         setProducts(results);
       }
@@ -39,8 +37,6 @@ export default function ProductTableAdmin() {
   React.useEffect(() => {
     if (products !== undefined) {
       setLargeID(products !== undefined ? products.length : 0)
-      console.log(largeID)
-      console.log(products)
     }
   }, [products]) // run when products changes
 
@@ -54,14 +50,14 @@ export default function ProductTableAdmin() {
           <th>Description</th>
           <th>Price</th>
           <th>Stock Count</th>
-          <th>Admin Edit Value</th>
-          <th>Admin Delete Value</th>
+          <th>Admin Edit</th>
+          <th>Admin Delete</th>
         </tr>
       </thead>
       <tbody>
         {
           products !== undefined &&
-          products.map(({ name, itemID, description, price, stockCount }, index) => (<tr key={index}>
+          products.map(({ name, itemID, description, price, stockCount, imageURL }, index) => (<tr key={index}>
             <td>{itemID}</td>
             <td>{name}</td>
             <td>{description}</td>
@@ -75,6 +71,7 @@ export default function ProductTableAdmin() {
                 item.description = description;
                 item.price = price;
                 item.stockCount = stockCount;
+                item.imageURL = imageURL;
                 setItemToEdit(item)
                 setEditModalVisible(true)
               }}>Edit Item</button>
