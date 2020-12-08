@@ -54,6 +54,16 @@ export interface IClient {
      * @return Success
      */
     createOrder(body: BasketObject | undefined): Promise<void>;
+    /**
+     * @param token (optional) 
+     * @return Success
+     */
+    getOrders(token: string | null | undefined): Promise<BasketObject[]>;
+    /**
+     * @param token (optional) 
+     * @return Success
+     */
+    getAdminOrders(token: string | null | undefined): Promise<BasketObject[]>;
 }
 
 export class Client implements IClient {
@@ -400,6 +410,100 @@ export class Client implements IClient {
         }
         return Promise.resolve<void>(<any>null);
     }
+
+    /**
+     * @param token (optional) 
+     * @return Success
+     */
+    getOrders(token: string | null | undefined): Promise<BasketObject[]> {
+        let url_ = this.baseUrl + "/Items/get-orders";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (token !== null && token !== undefined)
+            content_.append("token", token.toString());
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetOrders(_response);
+        });
+    }
+
+    protected processGetOrders(response: Response): Promise<BasketObject[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(BasketObject.fromJS(item));
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<BasketObject[]>(<any>null);
+    }
+
+    /**
+     * @param token (optional) 
+     * @return Success
+     */
+    getAdminOrders(token: string | null | undefined): Promise<BasketObject[]> {
+        let url_ = this.baseUrl + "/Items/get-admin-orders";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (token !== null && token !== undefined)
+            content_.append("token", token.toString());
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAdminOrders(_response);
+        });
+    }
+
+    protected processGetAdminOrders(response: Response): Promise<BasketObject[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(BasketObject.fromJS(item));
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<BasketObject[]>(<any>null);
+    }
 }
 
 export class ItemsObject implements IItemsObject {
@@ -464,6 +568,7 @@ export interface IItemsObject {
 
 export class BasketItem implements IBasketItem {
     itemId?: number;
+    name?: string | undefined;
     quantity?: number;
 
     constructor(data?: IBasketItem) {
@@ -478,6 +583,7 @@ export class BasketItem implements IBasketItem {
     init(_data?: any) {
         if (_data) {
             this.itemId = _data["itemId"];
+            this.name = _data["name"];
             this.quantity = _data["quantity"];
         }
     }
@@ -492,6 +598,7 @@ export class BasketItem implements IBasketItem {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["itemId"] = this.itemId;
+        data["name"] = this.name;
         data["quantity"] = this.quantity;
         return data; 
     }
@@ -499,12 +606,16 @@ export class BasketItem implements IBasketItem {
 
 export interface IBasketItem {
     itemId?: number;
+    name?: string | undefined;
     quantity?: number;
 }
 
 export class BasketObject implements IBasketObject {
     token?: string | undefined;
+    id?: string | undefined;
+    uid?: string | undefined;
     basketItems?: BasketItem[] | undefined;
+    orderTotal?: number;
 
     constructor(data?: IBasketObject) {
         if (data) {
@@ -518,11 +629,14 @@ export class BasketObject implements IBasketObject {
     init(_data?: any) {
         if (_data) {
             this.token = _data["token"];
+            this.id = _data["id"];
+            this.uid = _data["uid"];
             if (Array.isArray(_data["basketItems"])) {
                 this.basketItems = [] as any;
                 for (let item of _data["basketItems"])
                     this.basketItems!.push(BasketItem.fromJS(item));
             }
+            this.orderTotal = _data["orderTotal"];
         }
     }
 
@@ -536,18 +650,24 @@ export class BasketObject implements IBasketObject {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["token"] = this.token;
+        data["id"] = this.id;
+        data["uid"] = this.uid;
         if (Array.isArray(this.basketItems)) {
             data["basketItems"] = [];
             for (let item of this.basketItems)
                 data["basketItems"].push(item.toJSON());
         }
+        data["orderTotal"] = this.orderTotal;
         return data; 
     }
 }
 
 export interface IBasketObject {
     token?: string | undefined;
+    id?: string | undefined;
+    uid?: string | undefined;
     basketItems?: BasketItem[] | undefined;
+    orderTotal?: number;
 }
 
 export class SwaggerException extends Error {

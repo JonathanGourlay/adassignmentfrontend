@@ -13,12 +13,12 @@ function App() {
   return (
     <FirebaseAuthProvider firebase={firebase} {...firebaseConfig}>
       <IsAuthed.Provider>
-        <div className="App">
+        <div className="App" style={{ backgroundColor: '#6c757d63' }}>
           <Nav />
           <ProductTableController></ProductTableController>
         </div>
       </IsAuthed.Provider>
-    </FirebaseAuthProvider >
+    </FirebaseAuthProvider>
   );
 }
 

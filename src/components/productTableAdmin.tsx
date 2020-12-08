@@ -6,14 +6,15 @@ import { GetUserIdToken } from '../utils/firebase';
 import ProductForm from './productForm';
 import ProductEditForm from './productEditForm';
 import IsAuthed from '../scripts/globalState';
+import Orders from './orders';
 
 export default function ProductTableAdmin() {
   // GetUserIdToken().then(res => console.log(res)) // This is the function for getting the users UID from firebase
   const [products, setProducts] = React.useState<ItemsObject[]>();
   const [largeID, setLargeID] = React.useState<number>();
-  let { token } = IsAuthed.useContainer();
-  const [modalVisible, setModalVisible] = React.useState(false)
-  const [editModalVisible, setEditModalVisible] = React.useState(false)
+  let { token, orderModalVisible, setOrderModalVisible } = IsAuthed.useContainer();
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [editModalVisible, setEditModalVisible] = React.useState(false);
   const [itemToEdit, setItemToEdit] = React.useState<ItemsObject>();
 
   const getProducts = async () => {
@@ -55,8 +56,7 @@ export default function ProductTableAdmin() {
         </tr>
       </thead>
       <tbody>
-        {
-          products !== undefined &&
+        {products !== undefined &&
           products.map(({ name, itemID, description, price, stockCount, imageURL }, index) => (<tr key={index}>
             <td>{itemID}</td>
             <td>{name}</td>
@@ -72,8 +72,8 @@ export default function ProductTableAdmin() {
                 item.price = price;
                 item.stockCount = stockCount;
                 item.imageURL = imageURL;
-                setItemToEdit(item)
-                setEditModalVisible(true)
+                setItemToEdit(item);
+                setEditModalVisible(true);
               }}>Edit Item</button>
             </td>
             <td>
@@ -88,22 +88,20 @@ export default function ProductTableAdmin() {
         </tr>
       </tbody>
 
-    </table>
-      <ProductForm
-        newID={largeID as number}
-        onSubmit={() => { getProducts() }}
-        setModalVisible={setModalVisible}
-        modalVisible={modalVisible}
-      ></ProductForm>
-
-      <ProductEditForm
-        onSubmit={() => { getProducts() }}
-        setEditModalVisible={setEditModalVisible}
-        editModalVisible={editModalVisible}
-        editItem={itemToEdit}
-      ></ProductEditForm>
-    </>
-
+    </table><ProductForm
+      newID={largeID as number}
+      onSubmit={() => { getProducts(); }}
+      setModalVisible={setModalVisible}
+      modalVisible={modalVisible}
+    ></ProductForm><ProductEditForm
+      onSubmit={() => { getProducts(); }}
+      setEditModalVisible={setEditModalVisible}
+      editModalVisible={editModalVisible}
+      editItem={itemToEdit}
+    ></ProductEditForm>
+      <Orders
+        setOrderModalVisible={setOrderModalVisible}
+        orderModalVisible={orderModalVisible} /></>
   )
 
 };

@@ -10,7 +10,7 @@ import IsAuthed from '../scripts/globalState';
 
 export default function ProductTableController() {
     let { isAdmin } = IsAuthed.useContainer();
-
+    console.log(isAdmin)
     return (
         <FirebaseAuthConsumer>
             {({ isSignedIn }) => {

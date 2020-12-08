@@ -14,9 +14,7 @@ interface IIDHandlerProps {
 
 }
 const ProductForm = (props: IIDHandlerProps) => {
-    // const results =  apiClient.create();
     const [newItem, setNewItem] = React.useState<ItemsObject>();
-    const [visible, setVisible] = React.useState<boolean>();
     let { token } = IsAuthed.useContainer();
     return (
         <>

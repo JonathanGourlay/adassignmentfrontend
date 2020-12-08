@@ -6,12 +6,14 @@ import { GetUserIdToken } from '../utils/firebase';
 import { FirebaseAuthConsumer } from '@react-firebase/auth';
 import IsAuthed from '../scripts/globalState';
 import Basket from './Basket';
+import Orders from './orders';
 
 export default function ProductTable() {
   //GetUserIdToken().then(res => console.log(res)) // This is the function for getting the users UID from firebase
   const [products, setProducts] = React.useState<ItemsObject[]>();
   const [basket, setBasket] = React.useState<ItemsObject[]>();
   let { setBasketModalVisible, basketModalVisible } = IsAuthed.useContainer();
+  let { setOrderModalVisible, orderModalVisible } = IsAuthed.useContainer();
   useEffect(() => {
     const getProducts = async () => {
       try {
@@ -46,7 +48,7 @@ export default function ProductTable() {
 
                     </Card.Text>
                     <Card.Text>{"£" + price}</Card.Text>
-                    <Button variant="primary" onClick={(i) => {
+                    <Button variant="dark" onClick={(i) => {
                       const item = new ItemsObject();
                       item.name = name;
                       item.itemID = itemID;
@@ -71,6 +73,10 @@ export default function ProductTable() {
         basketModalVisible={basketModalVisible}
         basket={basket}
       ></Basket>
+      <Orders
+        setOrderModalVisible={setOrderModalVisible}
+        orderModalVisible={orderModalVisible}
+      />
     </Container>
 
   )

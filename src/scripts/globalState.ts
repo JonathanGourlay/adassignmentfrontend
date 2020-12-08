@@ -8,6 +8,7 @@ function AuthedState() {
     const [token, setToken] = React.useState<string | undefined>();
     const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
     const [basketModalVisible, setBasketModalVisible] = React.useState<boolean>()
+    const [orderModalVisible, setOrderModalVisible] = React.useState<boolean>()
     
     const tryGetToken = () => {
         GetUserIdToken().then(res => setToken(res)).catch((err) => {console.log({err})})
@@ -19,13 +20,14 @@ function AuthedState() {
 
     React.useEffect(() => {
         if (token !== undefined) {
-            apiClient.isAdmin(token).then((response) => {
+            const results =apiClient.isAdmin(token).then((response) => {
+                console.log(results)
             setIsAdmin(response)
         })
     }
     }, [token]) // run when token changes
 
-    return { token, setToken, isAdmin, setIsAdmin, tryGetToken, basketModalVisible, setBasketModalVisible }
+    return { token, setToken, isAdmin, setIsAdmin, tryGetToken, basketModalVisible, setBasketModalVisible, orderModalVisible, setOrderModalVisible }
 
   }
 
