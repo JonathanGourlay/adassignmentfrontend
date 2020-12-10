@@ -24,7 +24,7 @@ function AuthedState() {
                 console.log(results)
             setIsAdmin(response)
         })
-    }
+    }else{setIsAdmin(false)}
     }, [token]) // run when token changes
 
     return { token, setToken, isAdmin, setIsAdmin, tryGetToken, basketModalVisible, setBasketModalVisible, orderModalVisible, setOrderModalVisible }

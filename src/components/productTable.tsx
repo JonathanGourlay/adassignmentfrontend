@@ -25,7 +25,8 @@ export default function ProductTable() {
     };
     getProducts();
   }, []);
-
+  React.useEffect(() => {
+  }, [orderModalVisible])
 
   return (
     <Container fluid={true}>

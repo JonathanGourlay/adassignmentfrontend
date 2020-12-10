@@ -33,6 +33,9 @@ const Orders = (props: IIDHandlerProps) => {
     React.useEffect(() => {
         getOrders();
     }, [token]);
+    React.useEffect(() => {
+        getOrders();
+    }, [orders]);
 
 
     return (
